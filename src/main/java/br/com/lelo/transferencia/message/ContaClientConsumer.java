@@ -12,9 +12,9 @@ import static br.com.lelo.transferencia.model.ContaTopic.EVT_CONTA_MOV;
 import static br.com.lelo.transferencia.model.ContaTopic.EVT_CONTA_MOV_ERRO;
 import static java.time.Duration.ofMillis;
 
-public class ContaConsumer {
+public class ContaClientConsumer {
 
-    private Logger logger = LoggerFactory.getLogger(ContaConsumer.class.getName());
+    private Logger logger = LoggerFactory.getLogger(ContaClientConsumer.class.getName());
 
     public void start(String id) {
 

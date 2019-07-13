@@ -68,6 +68,6 @@ public class Conta {
 
     @Override
     public String toString() {
-        return "id: " + contaId + " saldo: " + saldo + " transferencias: " + transferencias.size();
+        return "id: " + contaId + " saldo: " + saldo + " transferencias: " + transferencias;
     }
 }
