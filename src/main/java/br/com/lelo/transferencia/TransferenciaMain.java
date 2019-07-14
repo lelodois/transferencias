@@ -8,7 +8,7 @@ public class TransferenciaMain {
 
     public static void main(String[] args) throws Exception {
         new ContaClientConsumer().start("client-conta");
-        new TransferenciaConsumer().start("domain-conta");
+        new TransferenciaConsumer().start("domain-conta-01");
         new TransferenciaProducer().transferir(10);
     }
 }

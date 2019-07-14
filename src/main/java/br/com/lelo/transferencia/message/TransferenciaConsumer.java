@@ -23,21 +23,26 @@ public class TransferenciaConsumer {
     private Logger logger = LoggerFactory.getLogger(TransferenciaConsumer.class.getName());
     private KafkaProducer<String, String> kafkaProducer = KafkaPropertiesBase.baseProducer();
 
-    public void start(String groupId) {
+    public void start(String... groups) {
         new Thread(() -> {
-            KafkaConsumer<String, String> consumer = baseConsumer(groupId, COM_MOVIMENTAR);
-            while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(ofMillis(100));
+            for (String groupId : groups) {
+                KafkaConsumer<String, String> consumer = baseConsumer(groupId, COM_MOVIMENTAR);
+                while (true) {
+                    ConsumerRecords<String, String> records = consumer.poll(ofMillis(100));
 
-                for (ConsumerRecord<String, String> record : records) {
-                    try {
-                        this.transferir(new Tansferencia(record.value()));
-                    } catch (Exception exc) {
-                        logger.error(Thread.currentThread().getName() + " - error: " + record.value(), exc);
+                    for (ConsumerRecord<String, String> record : records) {
+                        try {
+                            Tansferencia transferencia = new Tansferencia(record.value());
+                            if (!repository.containsTransferencia(transferencia.getId())) {
+                                this.transferir(transferencia);
+                            }
+                        } catch (Exception exc) {
+                            logger.error(Thread.currentThread().getName() + " - error: " + record.value(), exc);
+                        }
                     }
                 }
             }
-        }, groupId).start();
+        }).start();
     }
 
     private void transferir(Tansferencia item) throws JsonProcessingException {
@@ -49,6 +54,8 @@ public class TransferenciaConsumer {
         } catch (Exception e) {
             logger.error(item + " error: " + e.getMessage());
             informarTransferencia(EVT_CONTA_MOV_ERRO, contaOrigem);
+        } finally {
+            repository.saveTransferencia(item.getId());
         }
     }
 

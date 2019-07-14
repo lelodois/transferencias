@@ -4,6 +4,7 @@ import br.com.lelo.transferencia.model.Conta;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import redis.clients.jedis.Jedis;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 public class ContaRepository {
@@ -42,5 +43,13 @@ public class ContaRepository {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Erro ao salvar a conta: " + conta.getContaId(), e);
         }
+    }
+
+    public void saveTransferencia(int id) {
+        jedis.set(PREFIX + "-TRANS-" + id, LocalDateTime.now().toString());
+    }
+
+    public boolean containsTransferencia(int id) {
+        return jedis.get(PREFIX + "-TRANS-" + id) != null;
     }
 }

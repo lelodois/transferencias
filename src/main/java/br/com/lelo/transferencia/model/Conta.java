@@ -71,6 +71,6 @@ public class Conta {
 
     @Override
     public String toString() {
-        return "id: " + contaId + " saldo: " + saldo + " transferencias: " + transferencias;
+        return "id: " + contaId + " saldo: " + saldo + " transferencias: " + transferencias.size();
     }
 }
