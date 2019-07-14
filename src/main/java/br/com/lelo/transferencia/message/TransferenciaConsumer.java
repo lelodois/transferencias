@@ -33,21 +33,21 @@ public class TransferenciaConsumer {
                     try {
                         this.transferir(new Tansferencia(record.value()));
                     } catch (Exception exc) {
-                        logger.error("Error when: " + record.value(), exc.getMessage());
+                        logger.error(Thread.currentThread().getName() + " - error: " + record.value(), exc);
                     }
                 }
             }
-        }).start();
+        }, groupId).start();
     }
 
-    private void transferir(Tansferencia tansferencia) throws JsonProcessingException {
-        Conta contaOrigem = repository.getConta(tansferencia.getContaOrigemId());
-        Conta contaDestino = repository.getConta(tansferencia.getContaDestinoId());
+    private void transferir(Tansferencia item) throws JsonProcessingException {
+        Conta contaOrigem = repository.getConta(item.getContaOrigemId());
+        Conta contaDestino = repository.getConta(item.getContaDestinoId());
         try {
-            tansferencia.transferir(contaOrigem, contaDestino);
+            item.transferir(contaOrigem, contaDestino);
             this.finalizarConta(contaDestino);
         } catch (Exception e) {
-            logger.error(tansferencia + " error: " + e.getMessage());
+            logger.error(item + " error: " + e.getMessage());
             informarTransferencia(EVT_CONTA_MOV_ERRO, contaOrigem);
         }
     }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class Tansferencia {
     private int id;
@@ -55,8 +56,24 @@ public class Tansferencia {
     }
 
     public void transferir(Conta contaOrigem, Conta contaDestino) {
+        if (contaDestino.getTransferencias().contains(this) || contaOrigem.getTransferencias().contains(this)) {
+            throw new RuntimeException("Transferencia repetida: " + this.id);
+        }
         contaOrigem.debitar(this);
         contaDestino.creditar(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tansferencia that = (Tansferencia) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     @Override

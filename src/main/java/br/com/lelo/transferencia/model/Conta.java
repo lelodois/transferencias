@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,17 +21,21 @@ public class Conta {
     public Conta() {
     }
 
-    public Conta(String contaJson) throws IOException {
-        Conta conta = mapper.readValue(contaJson, Conta.class);
-        this.contaId = conta.contaId;
-        this.transferencias = conta.transferencias;
-        this.saldo = conta.saldo;
+    public Conta(String contaJson) {
+        try {
+            Conta conta = mapper.readValue(contaJson, Conta.class);
+            this.contaId = conta.contaId;
+            this.transferencias = conta.transferencias;
+            this.saldo = conta.saldo;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao recuperar a conta: " + contaJson);
+        }
     }
 
     public static Conta novaConta(int contaId) {
         Conta conta = new Conta();
         conta.contaId = contaId;
-        conta.saldo = new BigDecimal("1.00");
+        conta.saldo = BigDecimal.ONE;
         conta.transferencias = new ArrayList<>();
         return conta;
     }

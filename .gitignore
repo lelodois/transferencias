@@ -25,3 +25,5 @@ hs_err_pid*
 target/classes/META-INF/
 
 \.idea/
+
+*.kotlin_module
