@@ -1,28 +1,40 @@
 package br.com.lelo.transferencia.message;
 
 import br.com.lelo.transferencia.model.Tansferencia;
-import org.apache.kafka.clients.producer.KafkaProducer;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Random;
 
-import static br.com.lelo.transferencia.model.ContaTopic.COM_MOVIMENTAR;
+import static br.com.lelo.transferencia.TransferenciaApplication.COM_MOVIMENTAR;
 
-public class TransferenciaProducer {
+@Component
+public class TransferenciaProducer implements ApplicationListener<ContextRefreshedEvent> {
 
-    public void transferir(int size) throws Exception {
-        Random rdm = new Random();
-        KafkaProducer<String, String> kafkaProducer = KafkaPropertiesBase.baseProducer();
-        for (int index = 0; index <= size; index++) {
-            BigDecimal valor = new BigDecimal(rdm.nextDouble()).setScale(2, RoundingMode.HALF_UP);
-            Tansferencia tansferencia = new Tansferencia(rdm.nextInt(), rdm.nextInt(10), rdm.nextInt(10), valor);
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
-            ProducerRecord<String, String> record = new ProducerRecord<>(COM_MOVIMENTAR.getTopic(), tansferencia.asJson());
-            kafkaProducer.send(record);
+    @PostConstruct
+    public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+        try {
+            Random rdm = new Random();
+            for (int index = 0; index <= 100; index++) {
+                BigDecimal valor = new BigDecimal(rdm.nextDouble()).setScale(2, RoundingMode.HALF_UP);
+                Tansferencia tansferencia = new Tansferencia(rdm.nextInt(), rdm.nextInt(10), rdm.nextInt(10), valor);
+
+                kafkaTemplate.send(new ProducerRecord<>(COM_MOVIMENTAR, tansferencia.asJson()));
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
-        kafkaProducer.flush();
-        kafkaProducer.close();
     }
+
 }

@@ -1,11 +1,11 @@
-package br.com.lelo.transferencia.dao;
+package br.com.lelo.transferencia.model.dao;
 
 import br.com.lelo.transferencia.model.Conta;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import redis.clients.jedis.Jedis;
 
-import java.time.LocalDateTime;
-import java.util.Set;
+import static br.com.lelo.transferencia.model.Conta.novaConta;
+import static java.time.LocalDateTime.now;
 
 public class ContaRepository {
 
@@ -16,12 +16,8 @@ public class ContaRepository {
     private ContaRepository() {
     }
 
-    public static ContaRepository get() {
+    public static ContaRepository instance() {
         return contaRepository;
-    }
-
-    public Set<String> findAll() {
-        return jedis.keys(PREFIX + "*");
     }
 
     public Conta getConta(int contaId) {
@@ -30,13 +26,13 @@ public class ContaRepository {
             if (contaJson != null) {
                 return new Conta(contaJson);
             }
-            return save(Conta.novaConta(contaId));
+            return saveConta(novaConta(contaId));
         } catch (Exception e) {
             throw new RuntimeException("Erro ao criar a conta: " + contaId, e);
         }
     }
 
-    public Conta save(Conta conta) {
+    public Conta saveConta(Conta conta) {
         try {
             jedis.set(PREFIX + conta.getContaId(), conta.asJson());
             return conta;
@@ -46,7 +42,7 @@ public class ContaRepository {
     }
 
     public void saveTransferencia(int id) {
-        jedis.set(PREFIX + "-TRANS-" + id, LocalDateTime.now().toString());
+        jedis.set(PREFIX + "-TRANS-" + id, now().toString());
     }
 
     public boolean containsTransferencia(int id) {
