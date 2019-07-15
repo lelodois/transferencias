@@ -6,10 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.Payload;
 
 @Configuration
 public class ContaClientConsumer {
@@ -27,11 +23,10 @@ public class ContaClientConsumer {
     }
 
     @KafkaListener(topics = TransferenciaApplication.EVT_CONTA_MOV_ERRO, groupId = "group-1")
-    public void transferenciaNaoRealizada(@Payload String message, @Header(KafkaHeaders.ACKNOWLEDGMENT) Acknowledgment ack) {
+    public void transferenciaNaoRealizada(String message) {
         try {
             Conta conta = new Conta(message);
             logger.error("Conta Não Movimentada: " + conta);
-            ack.acknowledge();
         } catch (Exception exc) {
             logger.error("Error when: " + message, exc.getMessage());
         }
